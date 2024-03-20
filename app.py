@@ -8,6 +8,8 @@ from flask_dropzone import Dropzone
 from sqlalchemy.orm import relationship
 from moviepy.editor import *
 import os
+import app
+import requests
 from PIL import Image
 from io import BytesIO
 import tempfile
@@ -50,7 +52,19 @@ dropzone = Dropzone(app)
 # # app.config['SQLALCHEMY_DATABASE_URI'] = "cockroachdb://atharva:jxdN0_5eMPcN_O6XrSP0kw@legion-bard-8906.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/ISS?sslmode=verify-full"
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.secret_key = '3306'
-app.config['SQLALCHEMY_DATABASE_URI'] = "cockroachdb://soham:x8CB0wqFZiiOx4JGlaeQJQ@aksphotoshop-8972.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/iss?sslmode=verify-full"
+# app.config['SQLALCHEMY_DATABASE_URI'] = "cockroachdb://soham:x8CB0wqFZiiOx4JGlaeQJQ@aksphotoshop-8972.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/iss?sslmode=verify-full"
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.secret_key = '3306'
+root_cert_url = 'https://cockroachlabs.cloud/clusters/7c739b3b-7133-4093-b91c-e71b6ed94300/cert'
+root_cert_path = os.path.join(os.getenv('HOME'), '.postgresql', 'root.crt')
+
+os.makedirs(os.path.dirname(root_cert_path), exist_ok=True)
+response = requests.get(root_cert_url)
+with open(root_cert_path, 'wb') as f:
+    f.write(response.content)
+
+# Configure the SQLAlchemy database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = f"cockroachdb://atharva:jxdN0_5eMPcN_O6XrSP0kw@legion-bard-8906.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/ISS?sslmode=verify-full&sslrootcert={root_cert_path}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = '3306'
 
